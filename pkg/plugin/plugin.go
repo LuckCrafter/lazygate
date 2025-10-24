@@ -12,6 +12,9 @@ import (
 	"github.com/kasefuchs/lazygate/pkg/scheduler"
 	"github.com/kasefuchs/lazygate/pkg/utils"
 	"github.com/robinbraemer/event"
+	"go.minekube.com/brigodier"
+	"go.minekube.com/common/minecraft/component"
+	"go.minekube.com/gate/pkg/command"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
@@ -134,6 +137,26 @@ func (p *Plugin) initHandlers() error {
 	return nil
 }
 
+func (p *Plugin) initCommands() error {
+	p.proxy.Command().Register(brigodier.Literal("lgReload").
+		Executes(command.Command(func(c *command.Context) error {
+			p.registry.Clear()
+			p.initRegistry()
+			return c.Source.SendMessage(&component.Text{Content: "Refreshed!"})
+		})),
+	)
+	p.proxy.Command().Register(brigodier.Literal("lg").
+		Executes(command.Command(func(c *command.Context) error {
+			msg := ""
+			for _, e := range p.registry.EntryList() {
+				msg += "\n  " + e.Server.ServerInfo().Name()
+			}
+			return c.Source.SendMessage(&component.Text{Content: "Acitve Server:" + msg})
+		})),
+	)
+	return nil
+}
+
 // Init initializes plugin functionality.
 func (p *Plugin) Init() error {
 	p.log = logr.FromContextOrDiscard(p.ctx).WithName(logName)
@@ -154,6 +177,9 @@ func (p *Plugin) Init() error {
 		return err
 	}
 	if err := p.initHandlers(); err != nil {
+		return err
+	}
+	if err := p.initCommands(); err != nil {
 		return err
 	}
 
