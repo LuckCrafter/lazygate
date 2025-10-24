@@ -66,3 +66,10 @@ func (p *Plugin) onServerPreConnectEvent(event *proxy.ServerPreConnectEvent) {
 		}
 	}
 }
+
+func (p *Plugin) onReadyEvent(event *proxy.ReadyEvent) {
+	p.registry.Clear()
+	if err := p.initRegistry(); err != nil {
+		p.log.Error(err, "Failed to refresch Registry")
+	}
+}
