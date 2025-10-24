@@ -51,6 +51,7 @@ func (r *Registry) AddServer(srv proxy.RegisteredServer, namespace string) *Entr
 	if srv != nil {
 		return r.addServer(srv, namespace)
 	}
+	return nil
 }
 
 // Refresh updates registry data with new info.
