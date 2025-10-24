@@ -28,25 +28,37 @@ func (r *Registry) Clear() {
 	r.data = make(map[string]*Entry)
 }
 
+func (r *Registry) addServer(srv proxy.RegisteredServer, namespace string) *Entry {
+	alloc, err := r.provider.AllocationGet(srv)
+	if err != nil {
+		return nil
+	}
+
+	cfg, err := provider.ParseAllocationConfig(alloc)
+	if err != nil {
+		return nil
+	}
+
+	if cfg.Namespace == namespace {
+		ent := NewEntry(srv, alloc)
+		r.EntryRegister(ent)
+		return ent
+	}
+	return nil
+}
+
+func (r *Registry) AddServer(srv proxy.RegisteredServer, namespace string) *Entry {
+	if srv != nil {
+		return r.addServer(srv, namespace)
+	}
+}
+
 // Refresh updates registry data with new info.
 func (r *Registry) Refresh(namespace string) {
 	r.Clear()
 
 	for _, srv := range r.proxy.Servers() {
-		alloc, err := r.provider.AllocationGet(srv)
-		if err != nil {
-			continue
-		}
-
-		cfg, err := provider.ParseAllocationConfig(alloc)
-		if err != nil {
-			continue
-		}
-
-		if cfg.Namespace == namespace {
-			ent := NewEntry(srv, alloc)
-			r.EntryRegister(ent)
-		}
+		r.addServer(srv, namespace)
 	}
 }
 
