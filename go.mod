@@ -10,8 +10,9 @@ require (
 	github.com/pufferpanel/pufferpanel/v3 v3.0.0-rc.15
 	github.com/robinbraemer/event v0.1.1
 	github.com/traefik/paerser v0.2.2
+	go.minekube.com/brigodier v0.0.2
 	go.minekube.com/common v0.3.0
-	go.minekube.com/gate v0.57.0
+	go.minekube.com/gate v0.57.1
 )
 
 require (
@@ -120,7 +121,6 @@ require (
 	github.com/xrash/smetrics v0.0.0-20250705151800-55b8f293f342 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zyedidia/generic v1.2.1 // indirect
-	go.minekube.com/brigodier v0.0.2 // indirect
 	go.minekube.com/connect v0.6.2 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/host v0.63.0 // indirect

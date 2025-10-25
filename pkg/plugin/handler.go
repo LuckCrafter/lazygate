@@ -7,6 +7,7 @@ import (
 
 	"github.com/kasefuchs/lazygate/pkg/provider"
 	"github.com/kasefuchs/lazygate/pkg/queue"
+	"go.minekube.com/common/minecraft/component"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
@@ -25,11 +26,12 @@ func (p *Plugin) onServerPreConnectEvent(event *proxy.ServerPreConnectEvent) {
 	ctx := plr.Context()
 
 	ent := p.registry.EntryGet(srv)
-	if ent == nil || ent.Ping(ctx, p.proxy.Config()) {
+	if ent == nil {
 		ent = p.registry.AddServer(srv, p.config.Namespace)
-		if ent == nil || ent.Ping(ctx, p.proxy.Config()) {
-			return
-		}
+	}
+
+	if ent == nil || ent.Ping(ctx, p.proxy.Config()) {
+		return
 	}
 
 	cfg, err := provider.ParseAllocationConfig(ent.Allocation)
@@ -43,6 +45,10 @@ func (p *Plugin) onServerPreConnectEvent(event *proxy.ServerPreConnectEvent) {
 		p.log.Error(err, "failed to start server allocation", "server", name)
 
 		return
+	}
+
+	if plr != nil {
+		plr.SendMessage(&component.Text{Content: "Server is starting..."})
 	}
 
 	ent.KeepOnlineFor(time.Duration(cfg.Time.MinimumOnline))
@@ -68,16 +74,4 @@ func (p *Plugin) onServerPreConnectEvent(event *proxy.ServerPreConnectEvent) {
 			return
 		}
 	}
-}
-
-func (p *Plugin) onReadyEvent(event *proxy.ReadyEvent) {
-	p.registry.Clear()
-	if err := p.initRegistry(); err != nil {
-		p.log.Error(err, "Failed to refresch Registry")
-	}
-	p.log.Info("Refresh Servers")
-	for _, s := range p.proxy.Servers() {
-		s.ServerInfo().Name()
-	}
-
 }

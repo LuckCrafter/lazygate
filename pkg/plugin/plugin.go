@@ -132,7 +132,6 @@ func (p *Plugin) initHandlers() error {
 
 	event.Subscribe(eventMgr, math.MaxInt, p.onDisconnectEvent)
 	event.Subscribe(eventMgr, math.MaxInt, p.onServerPreConnectEvent)
-	event.Subscribe(eventMgr, math.MaxInt, p.onReadyEvent)
 
 	return nil
 }
@@ -140,8 +139,7 @@ func (p *Plugin) initHandlers() error {
 func (p *Plugin) initCommands() error {
 	p.proxy.Command().Register(brigodier.Literal("lgReload").
 		Executes(command.Command(func(c *command.Context) error {
-			p.registry.Clear()
-			p.initRegistry()
+			p.registry.Refresh(p.config.Namespace)
 			return c.Source.SendMessage(&component.Text{Content: "Refreshed!"})
 		})),
 	)
